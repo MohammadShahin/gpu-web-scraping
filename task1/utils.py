@@ -9,7 +9,8 @@ def read_link(link: str) -> BeautifulSoup:
     :param link: the link of the web page.
     :return: the contents of the page as BeautifulSoup.
     """
-    page = requests.get(link)
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    page = requests.get(link, headers=headers)
     assert page.status_code == 200
     content = BeautifulSoup(page.content, 'html.parser')
     return content
