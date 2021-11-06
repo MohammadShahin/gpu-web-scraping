@@ -1,9 +1,8 @@
 import time
-from typing import Tuple
+from typing import Tuple, List
 
 from bs4 import BeautifulSoup
 from task1.utils import read_link, get_fixed_text
-import pandas as pd
 
 
 COLUMNS = ['store_name', 'gpu_model', 'gpu_name', 'fetch_ts', 'gpu_price', 'in_stock', 'url']
@@ -50,23 +49,23 @@ class GpuScraper:
         self.data = None
         self.last_scrape = None
 
-    def scrape(self) -> Tuple[pd.DataFrame, float]:
+    def scrape(self) -> Tuple[List[dict], float]:
         """
         A method to run the scraping process. It goes through the gpus list pages one by one, then iterates over all the
         gpus in the each gpu page. For each gpu, it collects the necessary information and finally returns the output as
-        a Pandas data frame containing the columns in the variable COLUMNS, and the timestamp of the last fetch process.
-        :return: the output of the scraping process as a Pandas data frame containing the columns in the variable
+        a list of dictionaries representing the data scraped (each element represents a gpu), and the timestamp of the
+        last fetch process.
+        :return: the output of the scraping process as a list of dictionaries (each element represents a gpu).
         COLUMNS, and the timestamp of the last fetch process.
         """
         page_num = 0 if self.page_start_from_zero else 1
-        self.data = {column: [] for column in COLUMNS}
+        self.data = []
         while True:
             page_content = read_link(self.gpu_page_link + str(page_num))
             self.handle_page(page_content)
             if self.is_last_page(page_content, page_num + self.page_start_from_zero):
                 break
             page_num += 1
-        self.data = pd.DataFrame.from_dict(self.data)
         return self.data, self.last_scrape
 
     def get_gpu_model(self, gpu_content: BeautifulSoup) -> str:
@@ -156,7 +155,7 @@ class GpuScraper:
         a method for finding a gpu item following information: its model, its name, its price, and if it is available in
         stock. It stores these information in a dictionary, and returns this dictionary.
         :param gpu_content: the contents of the gpu page.
-        :return: a dictionary containing the info: its model, its name, its price, and if it is available in stock.
+        :return: a dictionary containing the gpu info: its model, its name, its price, and if it is available in stock.
         """
         gpu_data = {'gpu_model': self.get_gpu_model(gpu_content).strip(),
                     'gpu_name': self.get_gpu_name(gpu_content).strip(),
@@ -190,18 +189,16 @@ class GpuScraper:
         :param new_data: a dictionary containing the new gpu's data.
         :return: None.
         """
-        for key, value in new_data.items():
-            self.data[key].append(value)
+        self.data.append(new_data)
 
-    def handle_page(self, page_content: BeautifulSoup) -> dict:
+    def handle_page(self, page_content: BeautifulSoup):
         """
         A method to handle a gpus list page given its content. It goes through each gpu in the list, enters its link,
-        find the necessary information, and finally stores the output in a dictionary.
+        find the necessary information, and finally stores the output in the object's data.
         :param page_content: the contents of the gpus list page.
-        :return: a dictionary containing the gpus obtained from the page.
+        :return: None.
         """
         gpu_links = page_content.select(self.gpu_link_element)
-        data = {column: [] for column in COLUMNS}
         for gpu_link_item in gpu_links:
             gpu_link = self.base_link + gpu_link_item['href']
             gpu_content = read_link(gpu_link)
@@ -209,11 +206,10 @@ class GpuScraper:
             self.last_scrape = now
             gpu_data = self.handle_gpu_item(gpu_content)
             self.append_data({**gpu_data, 'store_name': self.store_name, 'fetch_ts': int(now), 'url': gpu_link})
-        return data
 
-    def get_data(self) -> Tuple[pd.DataFrame, float]:
+    def get_data(self) -> Tuple[List[dict], float]:
         """
         A method to get the data lastly scraped in the object along with the timestamp of the last fetch process.
-        :return: Pandas dataframe representing the data scraped, and the timestamp of the last fetch process.
+        :return: a list of dictionaries representing the data scraped, and the timestamp of the last fetch process.
         """
         return self.data, self.last_scrape

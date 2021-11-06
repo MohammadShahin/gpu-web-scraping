@@ -1,7 +1,8 @@
+import csv
 
 from task1.gpu_scraper import *
 
-OUTPUT_FILE = './output.csv'
+OUTPUT_FILE = 'output.csv'
 
 stores = [
         {
@@ -14,7 +15,7 @@ stores = [
             'in_stock_element': 'span.catalog__displayedItem__availabilityCount label',
             'gpu_link_element': 'div.indexGoods__item__flexCover > div > a[href]',
             'page_iterator_element': 'div.paginator > div.paginator__links > a',
-            'gpu_model_key': 'Серия процессора',
+            'gpu_model_key': 'Графический процессор',
             'feature_separator': ':',
             'page_start_from_zero': True
         },
@@ -36,12 +37,12 @@ stores = [
 
 
 if __name__ == '__main__':
-    all_data = pd.DataFrame(columns=COLUMNS)
-    pd.set_option('display.max_columns', None)
+    all_data = []
     for store in stores:
         gpu_scraper = GpuScraper(**store)
         store_data, last_scrape = gpu_scraper.scrape()
-        print(store_data.head(20))
-        all_data = all_data.append(store_data)
-    all_data.to_csv(OUTPUT_FILE, index=False)
-    print(all_data.head(20))
+        all_data += store_data
+    with open(OUTPUT_FILE, 'w') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=COLUMNS)
+        writer.writeheader()
+        writer.writerows(all_data)
