@@ -11,7 +11,7 @@ All the tasks in this repository were done as part of Provectus internship.
 <a name="task1"></a>
 ## Task 1
 
-<a name="task1"></a>
+<a name="task1-description"></a>
 ### Task description
 Fetch the data about gpu prices/OOS status from local retailer store websites.
 
@@ -34,7 +34,7 @@ Please choose at least 3 local retailers from the list:
 - https://regard.ru
 - https://oldi.ru
 
-<a name="task1"></a>
+<a name="task1-solution-logic"></a>
 ### Solution logic
 The sites used for this task were https://www.onlinetrade.ru and https://regard.ru. 
 
