@@ -1,4 +1,3 @@
-import time
 
 import scrapy
 import time
