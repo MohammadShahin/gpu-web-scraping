@@ -46,9 +46,9 @@ class GpuScraper(scrapy.Spider):
             store_page_link = store['gpu_page_link']
             page_num = 0 if store['page_start_from_zero'] else 1
             page_link = store_page_link + str(page_num)
-            yield scrapy.Request(url=page_link, callback=self.parse_page, meta={**store, 'page_num': page_num})
+            yield scrapy.Request(url=page_link, callback=self.parse, meta={**store, 'page_num': page_num})
 
-    def parse_page(self, response):
+    def parse(self, response):
         """
         A method to handle a gpu page list given the response. It consists mainly of two parts. The first part is it
         goes through each gpu in the list and scrapes them individually. The second is that it checks if the current
@@ -69,7 +69,7 @@ class GpuScraper(scrapy.Spider):
         if not self.is_last_page(page_iterators, page_num):
             store_page_link = response.meta['gpu_page_link']
             page_link = store_page_link + str(page_num + 1)
-            yield scrapy.Request(url=page_link, callback=self.parse_page,
+            yield scrapy.Request(url=page_link, callback=self.parse,
                                  meta={**response.meta, 'page_num': page_num + 1})
 
     def is_last_page(self, page_iterators, page_num) -> bool:
@@ -149,5 +149,3 @@ class GpuScraper(scrapy.Spider):
             print("Error while finding if the GPU's is in-stock (assuming it is not):", e)
             return False
 
-    def parse(self, response, **kwargs):
-        pass
