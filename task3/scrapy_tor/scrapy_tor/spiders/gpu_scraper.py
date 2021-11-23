@@ -40,7 +40,6 @@ class GpuScraper(scrapy.Spider):
     def start_requests(self):
         """
         A method to start the scraping. It goes through the stores and start scraping the first page of each store.
-        :return:
         """
         for store in stores:
             store_page_link = store['gpu_page_link']
