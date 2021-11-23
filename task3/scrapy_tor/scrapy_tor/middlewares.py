@@ -35,10 +35,9 @@ class ProxyMiddleware(HttpProxyMiddleware):
         """
         This method is used to change the TOR identity every N requests.
         """
-        # if ProxyMiddleware.num_requests == N:
-        #     new_tor_identity()
-        #     ProxyMiddleware.num_requests = 1
-        # else:
-        #     ProxyMiddleware.num_requests += 1
-        new_tor_identity()
+        if ProxyMiddleware.num_requests == N:
+            new_tor_identity()
+            ProxyMiddleware.num_requests = 1
+        else:
+            ProxyMiddleware.num_requests += 1
         request.meta['proxy'] = 'http://127.0.0.1:8118'
